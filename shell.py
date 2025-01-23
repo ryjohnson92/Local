@@ -1,4 +1,4 @@
-import subprocess
+import subprocess,os,signal
 class cmd:
     def __init__(self,cmd:str,root:bool=False,listen:bool=False):
         self.iter = listen
@@ -9,9 +9,9 @@ class cmd:
         pass
     def __enter__(self):
         if self.__root:
-            self.process = subprocess.Popen(self.__root_cmd, encoding='utf-8',universal_newlines=True, shell=self.shell, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,text=True)
+            self.process = subprocess.Popen(self.__root_cmd, encoding='utf-8',universal_newlines=True, shell=self.shell, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,text=True, preexec_fn=os.setsid)
         else:
-            self.process = subprocess.Popen(self.cmd, encoding='utf-8',universal_newlines=True, shell=self.shell, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,text=True)
+            self.process = subprocess.Popen(self.cmd, encoding='utf-8',universal_newlines=True, shell=self.shell, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,text=True, preexec_fn=os.setsid)
         
         if self.iter:
             # print('Self iter')
@@ -30,8 +30,7 @@ class cmd:
         pass
     def __exit__(self,a,b,c):
         try:
-            pass
-            # os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
+            os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
         except Exception as err:
             print(err)
         pass
